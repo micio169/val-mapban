@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VALORANT MAP VETO — 밴픽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Rajdhani:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#ff4655; --red2:#ff2d40; --bg:#0f1923; --bg2:#111c28; --panel:#16222e;
+  --line:#2a3a4a; --text:#ece8e1; --dim:#9aa8b5; --t1:#19d3e6; --t1d:#0a7d8c; --t2:#ff4655;
+  --gold:#ffd166;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;overflow-x:hidden;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.5;
+  background:repeating-linear-gradient(115deg,transparent 0 120px,rgba(255,255,255,.014) 120px 121px)}
+.scanlines{position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.10;mix-blend-mode:overlay;
+  background:repeating-linear-gradient(0deg,transparent 0 3px,#000 3px 4px)}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:55}
+#bgHero{position:fixed;inset:-4%;z-index:0;background:url('https://media.valorant-api.com/maps/224b0a95-48b9-f703-1bd8-67aca101a61f/splash.png') center/cover;filter:blur(14px) brightness(.32) saturate(1.2);animation:kenburns 28s ease-in-out infinite alternate}
+@keyframes kenburns{from{transform:scale(1) translate(0,0)}to{transform:scale(1.12) translate(-1.5%,1%)}}
+#bgHero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,25,35,.55),rgba(15,25,35,.88) 62%,#0f1923)}
+.wrap{position:relative;z-index:2;max-width:1240px;margin:0 auto;padding:0 18px 60px}
+.anton{font-family:'Anton','Noto Sans KR',sans-serif;letter-spacing:.02em}
+.raj{font-family:'Rajdhani','Noto Sans KR',sans-serif}
+/* ---------- header ---------- */
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 2px 14px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{width:46px;height:46px;background:var(--red);clip-path:polygon(0 0,100% 0,100% 68%,72% 100%,0 100%);display:grid;place-items:center;font-family:'Anton';font-size:26px;color:#fff;box-shadow:0 0 28px rgba(255,70,85,.55);animation:logoPulse 2.6s ease-in-out infinite}
+@keyframes logoPulse{0%,100%{box-shadow:0 0 18px rgba(255,70,85,.35)}50%{box-shadow:0 0 38px rgba(255,70,85,.75)}}
+.logo b{font-family:'Anton';font-size:26px;letter-spacing:.04em;line-height:1}
+.logo small{display:block;font-family:'Rajdhani';font-weight:700;letter-spacing:.42em;font-size:11px;color:var(--red);margin-top:3px}
+.hbtns{display:flex;gap:8px}
+.chipbtn{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--text);padding:9px 14px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;transition:.2s}
+.chipbtn:hover{border-color:var(--red);color:#fff;transform:translateY(-1px)}
+/* ---------- hero / setup ---------- */
+.hero{position:relative;border:1px solid var(--line);background:linear-gradient(135deg,rgba(22,34,46,.92),rgba(15,25,35,.75));overflow:hidden;padding:34px 30px 26px;margin-bottom:18px;clip-path:polygon(0 0,100% 0,100% calc(100% - 26px),calc(100% - 26px) 100%,0 100%)}
+.hero::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--t1),var(--red),var(--gold))}
+.hero h1{font-family:'Anton';font-size:clamp(46px,8vw,86px);line-height:.92;text-transform:uppercase}
+.hero h1 .stroke{color:transparent;-webkit-text-stroke:2px var(--text)}
+.hero h1 .red{color:var(--red);text-shadow:0 0 34px rgba(255,70,85,.5)}
+.glitch{position:relative;display:inline-block}
+.glitch::before,.glitch::after{content:attr(data-t);position:absolute;inset:0;overflow:hidden}
+.glitch::before{color:var(--t1);z-index:-1;animation:gl1 3.2s infinite steps(1)}
+.glitch::after{color:var(--red);z-index:-2;animation:gl2 2.7s infinite steps(1)}
+@keyframes gl1{0%,92%,100%{transform:none;opacity:0}93%{transform:translate(-4px,2px);opacity:.8}96%{transform:translate(3px,-2px);opacity:.8}}
+@keyframes gl2{0%,88%,100%{transform:none;opacity:0}89%{transform:translate(4px,-1px);opacity:.8}94%{transform:translate(-3px,2px);opacity:.8}}
+.hero p.sub{color:var(--dim);font-size:15px;margin-top:12px;max-width:640px;line-height:1.65}
+.hero p.sub b{color:var(--text)}
+.vs-strip{display:flex;align-items:center;gap:10px;margin-top:20px;flex-wrap:wrap;font-family:'Rajdhani';font-weight:700;letter-spacing:.18em;font-size:12px;color:var(--dim)}
+.vs-strip i{font-style:normal;padding:5px 10px;border:1px solid var(--line);background:rgba(0,0,0,.3)}
+.vs-strip .live{color:#7dff9a;border-color:#2c5c3c;animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.45}}
+/* ---------- panels ---------- */
+.grid2{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.panel{background:rgba(22,34,46,.88);border:1px solid var(--line);padding:22px;position:relative;backdrop-filter:blur(6px)}
+.panel::before{content:"";position:absolute;top:0;left:0;width:34px;height:3px;background:var(--red)}
+.panel h2{font-family:'Anton';font-size:20px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.panel h2 span{color:var(--red)}
+.panel .hint{color:var(--dim);font-size:13px;margin-bottom:16px;line-height:1.6}
+label.fl{display:block;font-size:12px;font-weight:900;letter-spacing:.14em;color:var(--dim);margin:14px 0 7px}
+label.fl:first-of-type{margin-top:0}
+.teaminput{display:flex;align-items:center;gap:10px}
+.dot{width:14px;height:14px;flex:none;transform:rotate(45deg)}
+.dot.t1{background:var(--t1);box-shadow:0 0 14px var(--t1)}
+.dot.t2{background:var(--t2);box-shadow:0 0 14px var(--t2)}
+.teaminput input{flex:1;background:#0b141d;border:1px solid var(--line);color:#fff;padding:13px 14px;font-size:17px;font-weight:900;font-family:'Noto Sans KR';border-radius:4px;outline:none;transition:.2s;min-width:0}
+.teaminput input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(255,70,85,.18)}
+.teaminput input::placeholder{color:#5a6b7a;font-weight:500}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{flex:1;min-width:88px;background:#0b141d;border:1px solid var(--line);color:var(--dim);padding:13px 8px;cursor:pointer;border-radius:4px;font-family:'Rajdhani';font-weight:700;font-size:17px;letter-spacing:.08em;transition:.18s}
+.seg button small{display:block;font-family:'Noto Sans KR';font-size:11px;font-weight:500;letter-spacing:0;color:#6b7d8c;margin-top:2px}
+.seg button.on{border-color:var(--red);color:#fff;background:linear-gradient(180deg,rgba(255,70,85,.22),rgba(255,70,85,.06));box-shadow:0 0 22px rgba(255,70,85,.25);transform:translateY(-2px)}
+.seg button.on small{color:#ffb3ba}
+.seg button:hover{color:#fff;border-color:#5a6b7a}
+.seqprev{margin-top:14px;background:#0b141d;border:1px dashed #33506b;padding:11px 13px;font-size:13px;line-height:1.7;color:var(--dim)}
+.seqprev b{color:var(--gold)}
+.seqprev .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:900;margin:0 2px;letter-spacing:.05em}
+.pill.ban{background:rgba(255,70,85,.18);color:#ff8b96;border:1px solid rgba(255,70,85,.5)}
+.pill.pick{background:rgba(25,211,230,.14);color:#7fe7f3;border:1px solid rgba(25,211,230,.5)}
+.pill.dec{background:rgba(255,209,102,.14);color:var(--gold);border:1px solid rgba(255,209,102,.5)}
+/* pool */
+.poolhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.poolhead .count{font-family:'Rajdhani';font-weight:700;color:var(--gold);letter-spacing:.1em}
+.pool{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+@media(max-width:520px){.pool{grid-template-columns:repeat(2,1fr)}}
+.poolcard{position:relative;border:1px solid var(--line);background:#0b141d;cursor:pointer;overflow:hidden;text-align:left;padding:0;transition:.2s;filter:grayscale(1) brightness(.55)}
+.poolcard img{width:100%;height:56px;object-fit:cover;display:block;transition:.3s}
+.poolcard span{position:absolute;left:8px;bottom:6px;font-family:'Rajdhani';font-weight:700;font-size:14px;letter-spacing:.08em;text-shadow:0 2px 8px #000;z-index:2}
+.poolcard .rot{position:absolute;top:5px;right:5px;font-size:9px;font-weight:900;background:var(--gold);color:#111;padding:2px 5px;border-radius:3px;z-index:2;letter-spacing:.05em}
+.poolcard::after{content:"✓";position:absolute;top:5px;left:6px;width:20px;height:20px;background:var(--red);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:900;border-radius:50%;opacity:0;transform:scale(.4);transition:.2s;z-index:2}
+.poolcard.on{filter:none;border-color:var(--red);box-shadow:0 0 16px rgba(255,70,85,.25)}
+.poolcard.on::after{opacity:1;transform:scale(1)}
+.poolcard:hover{transform:translateY(-2px)}
+.poolcard:hover img{transform:scale(1.08)}
+.poolnote{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.6}
+.startbtn{width:100%;margin-top:20px;border:0;cursor:pointer;padding:18px;font-family:'Anton';font-size:24px;letter-spacing:.1em;color:#fff;background:linear-gradient(90deg,#e8323f,var(--red) 55%,#ff6b4a);clip-path:polygon(0 0,100% 0,calc(100% - 18px) 100%,0 100%);box-shadow:0 12px 34px rgba(255,70,85,.35);transition:.2s;text-transform:uppercase}
+.startbtn:hover{filter:brightness(1.12);transform:translateY(-2px)}
+.startbtn:active{transform:translateY(0)}
+.err{display:none;margin-top:12px;background:rgba(255,70,85,.12);border:1px solid var(--red);color:#ffc9ce;padding:10px 12px;font-size:13px;border-radius:4px}
+/* ---------- veto stage ---------- */
+#stage{display:none}
+.turnbar{position:sticky;top:0;z-index:30;display:flex;align-items:stretch;gap:0;border:1px solid var(--line);background:rgba(15,25,35,.94);backdrop-filter:blur(10px);overflow:hidden;margin-bottom:16px}
+.turnbar .side{flex:1;padding:14px 16px;position:relative;transition:.3s;opacity:.45}
+.turnbar .side.active{opacity:1}
+.turnbar .side.active.t1{background:linear-gradient(90deg,rgba(25,211,230,.22),transparent);box-shadow:inset 4px 0 0 var(--t1)}
+.turnbar .side.active.t2{background:linear-gradient(270deg,rgba(255,70,85,.22),transparent);box-shadow:inset -4px 0 0 var(--t2)}
+.turnbar .side .nm{font-family:'Anton';font-size:clamp(18px,3.4vw,28px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.turnbar .side .st{font-size:11px;letter-spacing:.2em;color:var(--dim);font-weight:900}
+.turnbar .side.t2{text-align:right}
+.turnbar .mid{flex:none;display:grid;place-items:center;padding:8px 14px;text-align:center;min-width:132px;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.turnbar .mid .act{font-family:'Anton';font-size:26px;letter-spacing:.08em}
+.turnbar .mid .act.ban{color:var(--red)}
+.turnbar .mid .act.pick{color:var(--t1)}
+.turnbar .mid .step{font-family:'Rajdhani';font-weight:700;font-size:12px;letter-spacing:.22em;color:var(--dim)}
+.turnbar .mid .who{font-size:12px;font-weight:900;margin-top:2px}
+@keyframes turnIn{0%{transform:translateY(-8px);opacity:0;filter:blur(4px)}100%{transform:none;opacity:1;filter:none}}
+.turnbar.flash{animation:turnIn .45s ease}
+.progress{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.progress .plabel{font-family:'Rajdhani';font-weight:700;letter-spacing:.22em;font-size:11px;color:var(--dim);margin-right:4px}
+.pdot{height:26px;min-width:30px;padding:0 8px;display:grid;place-items:center;background:#0b141d;border:1px solid var(--line);font-family:'Rajdhani';font-weight:700;font-size:12px;color:var(--dim);clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%)}
+.pdot.cur{border-color:var(--gold);color:#111;background:var(--gold);animation:dotPulse 1s infinite}
+@keyframes dotPulse{50%{transform:scale(1.08)}}
+.pdot.done.ban{background:rgba(255,70,85,.25);color:#ff9aa3;border-color:var(--red)}
+.pdot.done.pick{background:rgba(25,211,230,.22);color:#8beaf5;border-color:var(--t1)}
+.pdot.done.dec{background:rgba(255,209,102,.25);color:var(--gold);border-color:var(--gold)}
+.mapgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:900px){.mapgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.mapgrid{grid-template-columns:1fr}}
+.mapcard{position:relative;cursor:pointer;border:1px solid var(--line);background:#0b141d;overflow:hidden;aspect-ratio:16/10;transition:transform .25s,border-color .25s,box-shadow .25s;transform-style:preserve-3d;will-change:transform}
+.mapcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.2,.8,.2,1),filter .4s}
+.mapcard:hover{border-color:#fff;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.25);z-index:3}
+.mapcard:hover img{transform:scale(1.1)}
+.mapcard .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 40%,rgba(0,0,0,.28) 68%,rgba(0,0,0,.88));z-index:1}
+.mapcard .meta{position:absolute;left:14px;right:14px;bottom:12px;z-index:2}
+.mapcard .meta .name{font-family:'Anton';font-size:clamp(24px,3.6vw,34px);text-transform:uppercase;line-height:1;text-shadow:0 3px 14px rgba(0,0,0,.7)}
+.mapcard .meta .desc{font-size:12px;color:#dbe4ea;margin-top:4px;text-shadow:0 2px 8px #000}
+.mapcard .idx{position:absolute;top:10px;left:10px;z-index:2;font-family:'Rajdhani';font-weight:700;font-size:12px;letter-spacing:.18em;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.25);padding:4px 8px;backdrop-filter:blur(4px)}
+.mapcard .actiontag{position:absolute;top:10px;right:10px;z-index:2;font-family:'Anton';font-size:13px;letter-spacing:.1em;padding:6px 9px;opacity:0;transform:translateY(-6px);transition:.25s;background:var(--red);color:#fff}
+.mapcard:hover .actiontag{opacity:1;transform:none}
+.mapcard .actiontag.pick{background:var(--t1);color:#04222a}
+.mapcard .stamp{position:absolute;inset:0;z-index:4;display:grid;place-items:center;pointer-events:none;opacity:0}
+.mapcard.banned img{filter:grayscale(1) brightness(.32) contrast(1.1)}
+.mapcard.banned{cursor:not-allowed;border-color:rgba(255,70,85,.6)}
+.mapcard.banned .stamp{opacity:1}
+.mapcard.picked{border-color:var(--t1);box-shadow:0 0 0 2px var(--t1),0 0 34px rgba(25,211,230,.35);cursor:not-allowed}
+.mapcard.picked img{filter:saturate(1.25) brightness(.85)}
+.mapcard.picked .stamp{opacity:1}
+.mapcard.decider{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold),0 0 44px rgba(255,209,102,.45);cursor:not-allowed}
+.mapcard.decider .stamp{opacity:1}
+.stamp-in{font-family:'Anton';font-size:clamp(34px,5vw,52px);letter-spacing:.06em;padding:6px 18px;border:5px solid currentColor;transform:rotate(-8deg);background:rgba(0,0,0,.35);backdrop-filter:blur(2px)}
+.stamp.ban .stamp-in{color:#ff5b68;animation:stampIn .38s cubic-bezier(.2,2.4,.4,1) both}
+.stamp.pick .stamp-in{color:#5fe6f2;animation:stampIn .38s cubic-bezier(.2,2.4,.4,1) both}
+.stamp.dec .stamp-in{color:var(--gold);animation:stampIn .5s cubic-bezier(.2,2.4,.4,1) both}
+@keyframes stampIn{0%{transform:rotate(-8deg) scale(2.6);opacity:0}60%{transform:rotate(-8deg) scale(.92);opacity:1}100%{transform:rotate(-8deg) scale(1);opacity:1}}
+@keyframes shakeX{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
+.shaking{animation:shakeX .45s ease}
+.mapcard .orderbadge{position:absolute;left:10px;bottom:64px;z-index:3;font-family:'Anton';background:var(--t1);color:#04222a;padding:5px 10px;font-size:14px;letter-spacing:.06em;display:none}
+.mapcard.picked .orderbadge,.mapcard.decider .orderbadge{display:block}
+.mapcard .byline{position:absolute;right:10px;bottom:12px;z-index:3;font-size:11px;font-weight:900;background:rgba(0,0,0,.6);padding:4px 8px;border-radius:3px;display:none}
+.mapcard.banned .byline,.mapcard.picked .byline,.mapcard.decider .byline{display:block}
+.veto-foot{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;align-items:center}
+.veto-foot .sp{flex:1}
+.log{margin-top:18px;background:rgba(22,34,46,.88);border:1px solid var(--line);padding:16px 18px}
+.log h3{font-family:'Anton';letter-spacing:.08em;font-size:15px;margin-bottom:10px}
+.log h3 span{color:var(--red)}
+.loglist{display:flex;flex-direction:column;gap:7px;font-size:14px}
+.logitem{display:flex;gap:10px;align-items:center;flex-wrap:wrap;animation:logIn .4s ease both}
+@keyframes logIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+.logitem .n{font-family:'Rajdhani';font-weight:700;color:var(--dim);width:26px}
+.logitem .who{font-weight:900;padding:3px 9px;border-radius:3px;font-size:12px}
+.logitem .who.t1{background:rgba(25,211,230,.16);color:#7fe7f3}
+.logitem .who.t2{background:rgba(255,70,85,.16);color:#ff9aa3}
+.logitem .empty{color:var(--dim)}
+/* modal */
+.overlay{position:fixed;inset:0;z-index:80;background:rgba(5,9,13,.78);backdrop-filter:blur(8px);display:none;place-items:center;padding:18px}
+.overlay.show{display:grid}
+.modal{width:min(680px,100%);background:var(--panel);border:1px solid var(--line);overflow:hidden;animation:modalIn .38s cubic-bezier(.2,1.4,.4,1) both;box-shadow:0 30px 80px rgba(0,0,0,.7)}
+@keyframes modalIn{from{transform:scale(.88) translateY(18px);opacity:0}to{transform:none;opacity:1}}
+.modal .mimg{position:relative;height:270px;overflow:hidden}
+.modal .mimg img{width:100%;height:100%;object-fit:cover;animation:kenburns 14s ease-in-out infinite alternate}
+.modal .mimg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(22,34,46,.4) 62%,var(--panel))}
+.modal .mimg .mact{position:absolute;top:16px;left:16px;font-family:'Anton';font-size:30px;padding:6px 16px;z-index:2;transform:rotate(-3deg)}
+.modal .mimg .mact.ban{background:var(--red);color:#fff;box-shadow:0 8px 30px rgba(255,70,85,.5)}
+.modal .mimg .mact.pick{background:var(--t1);color:#04222a;box-shadow:0 8px 30px rgba(25,211,230,.45)}
+.modal .mbody{padding:20px 22px 22px}
+.modal .mbody h3{font-family:'Anton';font-size:38px;text-transform:uppercase;line-height:1}
+.modal .mbody .q{color:var(--dim);margin-top:8px;line-height:1.65;font-size:14px}
+.modal .mbody .q b{color:#fff}
+.mbtns{display:flex;gap:10px;margin-top:20px}
+.mbtns button{flex:1;padding:15px;border-radius:4px;font-weight:900;font-size:16px;cursor:pointer;transition:.18s;border:1px solid var(--line);background:#0b141d;color:var(--text)}
+.mbtns .confirm{border:0;color:#fff;background:linear-gradient(90deg,#e8323f,var(--red));font-family:'Anton';letter-spacing:.08em;font-size:20px}
+.mbtns .confirm.pick{background:linear-gradient(90deg,#0a9db0,var(--t1));color:#04222a}
+.mbtns button:hover{transform:translateY(-2px);filter:brightness(1.1)}
+/* hide overlay */
+#hideOv .hidebox{text-align:center;max-width:520px;padding:30px}
+#hideOv .hidebox .big{font-family:'Anton';font-size:clamp(34px,6vw,54px);line-height:1;text-transform:uppercase}
+#hideOv .hidebox p{color:var(--dim);margin:12px 0 22px;line-height:1.7}
+#hideOv .hidebox button{padding:16px 28px;font-family:'Anton';font-size:20px;letter-spacing:.08em;border:0;cursor:pointer;color:#fff;background:var(--red);clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%)}
+/* coin */
+#coinOv .coin{width:150px;height:150px;border-radius:50%;margin:0 auto 20px;display:grid;place-items:center;font-family:'Anton';font-size:56px;background:radial-gradient(circle at 32% 30%,#ffe9a8,var(--gold) 55%,#b8860b);color:#3a2a00;box-shadow:0 0 50px rgba(255,209,102,.5);animation:coinSpin 1s linear infinite}
+@keyframes coinSpin{0%{transform:rotateY(0)}100%{transform:rotateY(360deg)}}
+#coinOv{text-align:center}
+#coinOv p{font-family:'Anton';font-size:26px;letter-spacing:.06em}
+/* results */
+#results{display:none;margin-top:18px}
+.reshead{text-align:center;padding:26px 10px 8px}
+.reshead .kick{font-family:'Rajdhani';font-weight:700;letter-spacing:.44em;color:var(--red);font-size:12px}
+.reshead h2{font-family:'Anton';font-size:clamp(38px,7vw,64px);text-transform:uppercase;line-height:1}
+.reshead h2 span{color:var(--red)}
+.reshead .vsline{font-size:15px;color:var(--dim);margin-top:8px}
+.resgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+@media(max-width:900px){.resgrid{grid-template-columns:1fr}}
+.rescard{position:relative;border:1px solid var(--line);background:#0b141d;overflow:hidden;animation:resIn .55s cubic-bezier(.2,1.2,.4,1) both}
+.rescard:nth-child(2){animation-delay:.12s}.rescard:nth-child(3){animation-delay:.24s}.rescard:nth-child(4){animation-delay:.36s}.rescard:nth-child(5){animation-delay:.48s}
+@keyframes resIn{from{opacity:0;transform:translateY(26px) scale(.97)}to{opacity:1;transform:none}}
+.rescard img{width:100%;height:190px;object-fit:cover;display:block}
+.rescard .rc-body{padding:14px 16px 16px}
+.rescard .mapno{font-family:'Rajdhani';font-weight:700;letter-spacing:.24em;color:var(--gold);font-size:12px}
+.rescard .rc-name{font-family:'Anton';font-size:30px;text-transform:uppercase;line-height:1.05;margin:4px 0 6px}
+.rescard .rc-meta{font-size:13px;color:var(--dim);line-height:1.6}
+.sidepick{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px}
+.sidepick .sp-label{font-size:11px;font-weight:900;letter-spacing:.16em;color:var(--dim);margin-bottom:8px}
+.sidepick .sp-btns{display:flex;gap:8px}
+.sidepick button{flex:1;padding:10px 6px;font-size:12px;font-weight:900;cursor:pointer;border:1px solid var(--line);background:#0b141d;color:var(--text);border-radius:4px;transition:.18s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidepick button.sel{border-color:var(--gold);background:rgba(255,209,102,.16);color:var(--gold)}
+.sidepick button small{display:block;font-weight:500;color:var(--dim);font-size:11px}
+.banlist{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;font-size:13px;color:var(--dim)}
+.banlist .bchip{background:#0b141d;border:1px solid rgba(255,70,85,.4);color:#ff9aa3;padding:6px 11px;border-radius:20px;text-decoration:line-through}
+.resbtns{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.resbtns button{padding:14px 22px;font-weight:900;cursor:pointer;border-radius:4px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);font-size:14px;transition:.2s}
+.resbtns button.primary{background:var(--red);border:0;color:#fff}
+.resbtns button:hover{transform:translateY(-2px)}
+#flash{position:fixed;inset:0;z-index:70;pointer-events:none;opacity:0;background:linear-gradient(100deg,transparent,rgba(255,70,85,.35),transparent)}
+#flash.go{animation:flashGo .7s ease}
+@keyframes flashGo{0%{opacity:0;transform:translateX(-30%)}30%{opacity:1}100%{opacity:0;transform:translateX(30%)}}
+footer{margin-top:34px;text-align:center;color:#5f7080;font-size:12px;line-height:1.8;padding:0 10px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);z-index:90;background:#fff;color:#111;font-weight:900;padding:12px 20px;border-radius:30px;opacity:0;pointer-events:none;transition:.3s;box-shadow:0 14px 40px rgba(0,0,0,.5);font-size:14px;max-width:92vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div id="bgHero"></div>
+<canvas id="fx"></canvas>
+<div class="scanlines"></div>
+<div id="flash"></div>
+
+<div class="wrap">
+<header>
+  <div class="logo">
+    <div class="logo-mark">V</div>
+    <div><b>MAP VETO</b><small>VALORANT &nbsp;BAN &amp; PICK</small></div>
+  </div>
+  <div class="hbtns">
+    <button class="chipbtn" id="soundBtn" type="button">🔊 사운드 ON</button>
+    <button class="chipbtn" id="topResetBtn" type="button">↺ 처음부터</button>
+  </div>
+</header>
+
+<!-- ============ SETUP ============ -->
+<section id="setup">
+  <div class="hero">
+    <h1><span class="glitch" data-t="BAN &amp; PICK">BAN <span class="stroke">&amp;</span> <span class="red">PICK</span></span></h1>
+    <p class="sub">한 컴퓨터에서 두 팀이 <b>번갈아 가며</b> 클릭하는 발로란트 맵 밴픽. 팀 이름만 입력하고, 순서대로 밴하고 픽하면 마지막에 남는 맵이 디사이더가 됩니다. <b>실수해도 되돌리기</b>가 있어요.</p>
+    <div class="vs-strip"><i>● LIVE VETO TOOL</i><i>1PC · PASS &amp; PLAY</i><i class="live">● 2026 현 로테이션 반영</i></div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>01 · <span>팀</span> &amp; <span>방식</span></h2>
+      <p class="hint">팀 이름을 입력하세요. 비워두면 기본 이름이 들어갑니다.</p>
+
+      <label class="fl" for="team1">TEAM 1 — 블루</label>
+      <div class="teaminput"><span class="dot t1"></span><input id="team1" maxlength="14" placeholder="예) T1, DRX, 우리팀" autocomplete="off"></div>
+      <label class="fl" for="team2">TEAM 2 — 레드</label>
+      <div class="teaminput"><span class="dot t2"></span><input id="team2" maxlength="14" placeholder="예) GEN, 한화생명, 상대팀" autocomplete="off"></div>
+
+      <label class="fl">매치 방식</label>
+      <div class="seg" id="formatSeg">
+        <button type="button" data-fmt="BO1">BO1<small>단판 · 1맵</small></button>
+        <button type="button" data-fmt="BO3" class="on">BO3<small>3판 2선승 · 3맵</small></button>
+        <button type="button" data-fmt="BO5">BO5<small>5판 3선승 · 5맵</small></button>
+      </div>
+
+      <label class="fl">먼저 밴/픽하는 팀</label>
+      <div class="seg" id="firstSeg">
+        <button type="button" data-first="0" class="on">TEAM 1<small>먼저 시작</small></button>
+        <button type="button" data-first="1">TEAM 2<small>먼저 시작</small></button>
+        <button type="button" data-first="rand">🎲 랜덤<small>코인 토스</small></button>
+      </div>
+
+      <div class="seqprev" id="seqPrev"></div>
+      <div class="err" id="setupErr"></div>
+      <button class="startbtn" id="startBtn" type="button">밴픽 시작 →</button>
+    </div>
+
+    <div class="panel">
+      <div class="poolhead"><h2>02 · <span>맵 풀</span> 선택</h2><span class="count" id="poolCount"></span></div>
+      <p class="hint">쓸 맵만 켜두세요. 기본은 2026 현 로테이션 7개 맵입니다.</p>
+      <div class="pool" id="pool"></div>
+      <p class="poolnote">💡 맵이 많을수록 밴 단계가 길어집니다. BO3은 최소 3개, BO5는 최소 5개의 맵이 필요합니다. 맵 사진은 공식 스플래시 아트입니다.</p>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="chipbtn" id="poolRotation" type="button" style="flex:1">현 로테이션 7개만</button>
+        <button class="chipbtn" id="poolAll" type="button" style="flex:1">전체 13개 맵</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VETO STAGE ============ -->
+<section id="stage">
+  <div class="turnbar" id="turnbar">
+    <div class="side t1" id="side1"><div class="st">TEAM 1 · BLUE</div><div class="nm" id="side1Name">TEAM 1</div></div>
+    <div class="mid">
+      <div class="step" id="stepLabel">STEP 1 / 6</div>
+      <div class="act ban" id="actLabel">BAN</div>
+      <div class="who" id="whoLabel">TEAM 1 차례</div>
+    </div>
+    <div class="side t2" id="side2"><div class="st">TEAM 2 · RED</div><div class="nm" id="side2Name">TEAM 2</div></div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+  <div class="mapgrid" id="mapgrid"></div>
+
+  <div class="veto-foot">
+    <button class="chipbtn" id="undoBtn" type="button">↩ 되돌리기</button>
+    <button class="chipbtn" id="hideBtn" type="button">🙈 화면 가리기 (차례 넘기기)</button>
+    <span class="sp"></span>
+    <span style="font-size:13px;color:var(--dim)" id="remainLabel"></span>
+  </div>
+
+  <div class="log">
+    <h3>VETO <span>LOG</span> — 진행 기록</h3>
+    <div class="loglist" id="loglist"><div class="empty">아직 밴/픽 기록이 없습니다. 첫 차례 팀이 맵을 골라주세요.</div></div>
+  </div>
+
+  <div id="results">
+    <div class="reshead">
+      <div class="kick">VETO COMPLETE</div>
+      <h2>매치 <span>맵 순서</span> 확정</h2>
+      <div class="vsline" id="resVs"></div>
+    </div>
+    <div class="resgrid" id="resgrid"></div>
+    <div class="banlist" id="banlist"></div>
+    <div class="resbtns">
+      <button type="button" id="copyBtn">📋 결과 복사하기</button>
+      <button type="button" id="againBtn">↺ 같은 팀으로 다시 밴픽</button>
+      <button type="button" class="primary" id="newBtn">새 매치 설정하기 →</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  비공식 팬 메이드 도구입니다. VALORANT와 맵 아트는 Riot Games의 자산입니다.<br>
+  맵 이미지 출처: valorant-api.com 공식 스플래시 · Summit: 공식 로딩 스크린 아트
+</footer>
+</div>
+
+<!-- confirm modal -->
+<div class="overlay" id="confirmOv" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="mimg"><img id="mImg" alt=""><div class="mact ban" id="mAct">BAN</div></div>
+    <div class="mbody">
+      <h3 id="mName">ASCENT</h3>
+      <p class="q" id="mQ"></p>
+      <div class="mbtns">
+        <button type="button" id="mCancel">취소</button>
+        <button type="button" class="confirm" id="mConfirm">확정</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- hide overlay -->
+<div class="overlay" id="hideOv">
+  <div class="hidebox">
+    <div class="big" id="hideTitle">다음 팀 차례</div>
+    <p id="hideDesc">상대 팀은 화면을 보지 마세요.<br>준비된 팀이 아래 버튼을 눌러주세요.</p>
+    <button type="button" id="hideReady">준비됐어요 — 맵 보기 →</button>
+  </div>
+</div>
+
+<!-- coin overlay -->
+<div class="overlay" id="coinOv"><div><div class="coin">V</div><p>코인 토스 중…</p></div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = id => 'https://media.valorant-api.com/maps/' + id + '/splash.png';
+const MAPS = [
+  {id:'abyss',   name:'ABYSS',   ko:'어비스',   desc:'끝없는 심연 · 낙사 구간 주의', img:API('224b0a95-48b9-f703-1bd8-67aca101a61f'), rot:true,  grad:'linear-gradient(135deg,#1b2a4a,#6b3df0)'},
+  {id:'bind',    name:'BIND',    ko:'바인드',   desc:'라바트, 모로코 · 텔레포터', img:API('2c9d57ec-4431-9c5e-2939-8f9ef6dd5cba'), rot:true, grad:'linear-gradient(135deg,#7a4a1e,#e8a33d)'},
+  {id:'corrode', name:'CORRODE', ko:'코로드',   desc:'부식된 요새 · 전략적 교전', img:API('1c18ab1f-420d-0d8b-71d0-77ad3c439115'), rot:true, grad:'linear-gradient(135deg,#3d4a2a,#8aa84a)'},
+  {id:'haven',   name:'HAVEN',   ko:'헤이븐',   desc:'팀푸, 부탄 · 3개 사이트', img:API('2bee0dc9-4ffe-519b-1cbd-7fbe763a6047'), rot:true, grad:'linear-gradient(135deg,#4a2a2a,#c05a3a)'},
+  {id:'lotus',   name:'LOTUS',   ko:'로터스',   desc:'인도 · 3개 사이트, 회전 문', img:API('2fe4ed3a-450a-948b-6d6b-e89a78e680a9'), rot:true, grad:'linear-gradient(135deg,#2a4a3d,#3dbf8a)'},
+  {id:'sunset',  name:'SUNSET',  ko:'선셋',    desc:'로스앤젤레스 · 노을 진 거리', img:API('92584fbe-486a-b1b2-9faa-39b0f486b498'), rot:true, grad:'linear-gradient(135deg,#4a2a4a,#e86a3d)'},
+  {id:'summit',  name:'SUMMIT',  ko:'서밋',    desc:'장자제, 중국 · 떨어지는 벽', img:'https://static.beebom.com/wp-content/uploads/2026/06/Valorant-new-map-Summit_Loading-Screen.jpg?w=1024', fb:'https://esports-news.co.uk/wp-content/uploads/2026/06/Valorant-Summit-Map.jpg', rot:true, grad:'linear-gradient(135deg,#2a3d4a,#5a9ac0)'},
+  {id:'ascent',  name:'ASCENT',  ko:'어센트',  desc:'베니스, 이탈리아 · 파괴 가능한 문', img:'https://i.namu.wiki/i/LeH06n-hXZ4US-3ZZv8T-c_Uykrzsl0yXYaEHP-vfLzmGdsj9DuAg1xDp6j2fMOjzlfM7vy7Q_YiIgE5DL2VaA.webp', rot:false, grad:'linear-gradient(135deg,#2a4a5a,#3d8ac0)'},
+  {id:'split',   name:'SPLIT',   ko:'스플릿',  desc:'도쿄, 일본 · 로프와 고지대', img:API('d960549e-485c-e861-8d71-aa9d1aed12a2'), rot:false, grad:'linear-gradient(135deg,#3d2a4a,#8a5ac0)'},
+  {id:'icebox',  name:'ICEBOX',  ko:'아이스박스', desc:'베네트 섬 · 집라인과 눈', img:API('e2ad5c54-4114-a870-9641-8ea21279579a'), rot:false, grad:'linear-gradient(135deg,#2a4a5a,#a8d8e8)'},
+  {id:'breeze',  name:'BREEZE',  ko:'브리즈',  desc:'남대서양 · 넓은 오픈 필드', img:API('2fb9a4fd-47b8-4e7d-a969-74b4046ebd53'), rot:false, grad:'linear-gradient(135deg,#2a5a4a,#4ac0a8)'},
+  {id:'fracture',name:'FRACTURE',ko:'프랙처',  desc:'H자 구조 · 양방향 공략', img:API('b529448b-4d60-346e-e89e-00a4c527a405'), rot:false, grad:'linear-gradient(135deg,#4a3d2a,#c08a3d)'},
+  {id:'pearl',   name:'PEARL',   ko:'펄',      desc:'리스본 · 수중 도시, 3개 사이트', img:API('fd267378-4d1d-484f-ff52-77821ed10dc2'), rot:false, grad:'linear-gradient(135deg,#2a3d4a,#3da8c0)'},
+];
+const $ = s => document.querySelector(s);
+const state = {
+  teams:['TEAM 1','TEAM 2'], format:'BO3', firstChoice:'0',
+  pool:new Set(MAPS.filter(m=>m.rot).map(m=>m.id)),
+  steps:[], stepIdx:0, maps:{}, history:[], sides:{}, finished:false, pending:null, sound:true
+};
+let audioCtx = null;
+
+/* ---------- sound (Web Audio, no files) ---------- */
+function tone(freq, dur, type, vol, slide){
+  if(!state.sound) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type || 'sine'; o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    if(slide) o.frequency.exponentialRampToValueAtTime(slide, audioCtx.currentTime + dur);
+    g.gain.setValueAtTime(vol || .12, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + dur);
+    o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + dur);
+  }catch(e){}
+}
+function thud(){
+  if(!state.sound) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const len = audioCtx.sampleRate * .22, buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate), d = buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/len, 2.2);
+    const src = audioCtx.createBufferSource(); src.buffer = buf;
+    const f = audioCtx.createBiquadFilter(); f.type='lowpass'; f.frequency.value = 320;
+    const g = audioCtx.createGain(); g.gain.value = .5;
+    src.connect(f); f.connect(g); g.connect(audioCtx.destination); src.start();
+    tone(70, .3, 'sine', .3, 38);
+  }catch(e){}
+}
+const sClick = ()=>tone(660,.07,'triangle',.07);
+const sWhoosh = ()=>tone(300,.28,'sawtooth',.05,1200);
+const sPick = ()=>{ tone(520,.12,'triangle',.12); setTimeout(()=>tone(780,.16,'triangle',.12),90); setTimeout(()=>tone(1040,.22,'triangle',.1),180); };
+
+/* ---------- particles ---------- */
+const cv = $('#fx'), ctx = cv.getContext('2d'); let parts = [], rafId = null;
+function sizeCanvas(){ cv.width = innerWidth; cv.height = innerHeight; }
+sizeCanvas(); addEventListener('resize', sizeCanvas);
+function burst(x, y, color, n, spread){
+  for(let i=0;i<(n||46);i++){
+    const a = Math.random()*Math.PI*2, sp = (Math.random()*7+2) * (spread||1);
+    parts.push({x, y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp - 3, life:1, decay:.012+Math.random()*.014, size:2+Math.random()*5, color, rot:Math.random()*Math.PI, vr:(Math.random()-.5)*.3});
+  }
+  if(!rafId) loopFx();
+}
+function loopFx(){
+  rafId = requestAnimationFrame(loopFx);
+  ctx.clearRect(0,0,cv.width,cv.height);
+  parts = parts.filter(p=>p.life>0);
+  if(!parts.length){ cancelAnimationFrame(rafId); rafId=null; return; }
+  for(const p of parts){
+    p.x+=p.vx; p.y+=p.vy; p.vy+=.22; p.vx*=.985; p.life-=p.decay; p.rot+=p.vr;
+    ctx.save(); ctx.globalAlpha = Math.max(p.life,0); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.color;
+    ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*.6); ctx.restore();
+  }
+}
+function fireworks(){
+  const colors=['#ff4655','#19d3e6','#ffd166','#ffffff'];
+  let i=0; const iv=setInterval(()=>{
+    burst(Math.random()*innerWidth*.8+innerWidth*.1, Math.random()*innerHeight*.4+60, colors[i%4], 60, 1.4);
+    if(++i>=6) clearInterval(iv);
+  }, 220);
+}
+
+/* ---------- toast / flash ---------- */
+let toastT=null;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600); }
+function flash(){ const f=$('#flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
+
+/* ---------- setup: pool & format ---------- */
+function renderPool(){
+  const el=$('#pool'); el.innerHTML='';
+  MAPS.forEach(m=>{
+    const b=document.createElement('button'); b.type='button';
+    b.className='poolcard'+(state.pool.has(m.id)?' on':'');
+    b.innerHTML = '<img src="'+m.img+'" alt="'+m.name+' 대표 사진" loading="lazy" onerror="this.style.display=\'none\'">'+(m.rot?'<span class="rot">현 로테이션</span>':'')+'<span>'+m.name+'</span>';
+    b.setAttribute('aria-pressed', state.pool.has(m.id));
+    b.onclick=()=>{ sClick(); if(state.pool.has(m.id)) state.pool.delete(m.id); else state.pool.add(m.id); renderPool(); renderSeqPrev(); };
+    el.appendChild(b);
+  });
+  $('#poolCount').textContent = state.pool.size + '개 맵 선택됨';
+}
+function buildSteps(fmt, n, first){
+  const alt = i => (first + i) % 2;
+  const seq=[]; let k=0;
+  const push=(type)=>{ seq.push({type, team:alt(k++)}); };
+  if(fmt==='BO1'){
+    for(let i=0;i<n-1;i++) push('ban');
+  } else if(fmt==='BO3' && n===7){
+    ['ban','ban','pick','pick','ban','ban'].forEach(push);
+  } else if(fmt==='BO5' && n===7){
+    ['ban','ban','pick','pick','pick','pick'].forEach(push);
+  } else if(fmt==='BO3'){
+    for(let i=0;i<n-3;i++) push('ban');
+    push('pick'); push('pick');
+  } else if(fmt==='BO5'){
+    for(let i=0;i<n-5;i++) push('ban');
+    push('pick'); push('pick'); push('pick'); push('pick');
+  }
+  return seq;
+}
+function renderSeqPrev(){
+  const n=state.pool.size, first = state.firstChoice==='rand'?0:parseInt(state.firstChoice,10);
+  const steps = buildSteps(state.format, Math.max(n,2), first);
+  const label = t => t==='ban'?'<span class="pill ban">BAN</span>':t==='pick'?'<span class="pill pick">PICK</span>':'<span class="pill dec">DECIDER</span>';
+  $('#seqPrev').innerHTML = '<b>진행 순서 미리보기</b><br>' + (steps.length? steps.map(s=>label(s.type)).join(' → ') + ' → <span class="pill dec">DECIDER</span> (남은 1맵)' : '맵을 2개 이상 선택하세요.') +
+    '<br><span style="font-size:12px">밴 = 그 맵을 경기에서 제외, 픽 = 그 맵을 경기 맵으로 선택, 디사이더 = 마지막에 남은 맵</span>';
+  const err=$('#setupErr');
+  const min = state.format==='BO3'?3:state.format==='BO5'?5:2;
+  if(n<min){ err.style.display='block'; err.textContent='⚠ '+state.format+'에는 최소 '+min+'개의 맵이 필요합니다. 맵을 더 켜주세요.'; }
+  else err.style.display='none';
+}
+function bindSeg(id, key, cb){
+  document.querySelectorAll('#'+id+' button').forEach(b=>{
+    b.onclick=()=>{ sClick(); document.querySelectorAll('#'+id+' button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); state[key]=b.dataset.fmt||b.dataset.first; cb&&cb(); };
+  });
+}
+bindSeg('formatSeg','format',renderSeqPrev);
+bindSeg('firstSeg','firstChoice',renderSeqPrev);
+$('#poolRotation').onclick=()=>{ state.pool=new Set(MAPS.filter(m=>m.rot).map(m=>m.id)); renderPool(); renderSeqPrev(); sClick(); };
+$('#poolAll').onclick=()=>{ state.pool=new Set(MAPS.map(m=>m.id)); renderPool(); renderSeqPrev(); sClick(); };
+renderPool(); renderSeqPrev();
+
+/* ---------- start ---------- */
+$('#startBtn').onclick=()=>{
+  const t1=$('#team1').value.trim(), t2=$('#team2').value.trim();
+  state.teams=[t1||'TEAM 1', t2||'TEAM 2'];
+  const min = state.format==='BO3'?3:state.format==='BO5'?5:2;
+  if(state.pool.size<min){ toast('맵이 부족합니다. 최소 '+min+'개가 필요해요.'); renderSeqPrev(); return; }
+  let first = state.firstChoice==='rand' ? (Math.random()<.5?0:1) : parseInt(state.firstChoice,10);
+  const begin=()=>{
+    state.steps = buildSteps(state.format, state.pool.size, first);
+    state.stepIdx=0; state.history=[]; state.sides={}; state.finished=false;
+    state.maps={}; MAPS.forEach(m=>{ state.maps[m.id]={...m, status:'live', by:null, order:null}; });
+    $('#setup').style.display='none'; $('#stage').style.display='block';
+    $('#side1Name').textContent=state.teams[0]; $('#side2Name').textContent=state.teams[1];
+    renderAll(); flash(); sWhoosh();
+    toast((state.firstChoice==='rand'?'🎲 코인 토스 결과: ':'') + state.teams[first] + ' 팀이 먼저 시작합니다!');
+    document.getElementById('stage').scrollIntoView({behavior:'smooth'});
+  };
+  if(state.firstChoice==='rand'){
+    $('#coinOv').classList.add('show'); tone(440,.2,'triangle',.1);
+    setTimeout(()=>{ $('#coinOv').classList.remove('show'); begin(); }, 1100);
+  } else begin();
+};
+
+/* ---------- veto render ---------- */
+function curStep(){ return state.steps[state.stepIdx]; }
+function remaining(){ return Object.values(state.maps).filter(m=>state.pool.has(m.id) && m.status==='live'); }
+function renderAll(){
+  renderTurnbar(); renderProgress(); renderGrid(); renderLog();
+  $('#remainLabel').textContent = '남은 맵 ' + remaining().length + '개';
+  $('#undoBtn').disabled = !state.history.length;
+  $('#undoBtn').style.opacity = state.history.length?1:.45;
+}
+function renderTurnbar(){
+  const bar=$('#turnbar');
+  if(state.finished){
+    $('#stepLabel').textContent='VETO COMPLETE'; $('#actLabel').textContent='DONE'; $('#actLabel').className='act pick'; $('#whoLabel').textContent='결과를 확인하세요';
+    $('#side1').classList.remove('active'); $('#side2').classList.remove('active'); return;
+  }
+  const s=curStep(); if(!s) return;
+  $('#stepLabel').textContent='STEP '+(state.stepIdx+1)+' / '+state.steps.length;
+  $('#actLabel').textContent = s.type==='ban'?'BAN':'PICK';
+  $('#actLabel').className='act '+(s.type==='ban'?'ban':'pick');
+  $('#whoLabel').textContent = state.teams[s.team]+' 차례';
+  $('#side1').classList.toggle('active', s.team===0);
+  $('#side2').classList.toggle('active', s.team===1);
+  bar.classList.remove('flash'); void bar.offsetWidth; bar.classList.add('flash');
+}
+function renderProgress(){
+  const el=$('#progress');
+  let h='<span class="plabel">PROGRESS</span>';
+  state.steps.forEach((s,i)=>{
+    const cls = i<state.stepIdx?'done '+s.type:(i===state.stepIdx?'cur':'');
+    h+='<span class="pdot '+cls+'">'+(s.type==='ban'?'BAN':s.type==='pick'?'PICK':'—')+'</span>';
+  });
+  h+='<span class="pdot '+(state.finished?'done dec':'')+'">DECIDER</span>';
+  el.innerHTML=h;
+}
+function cardHTML(m){
+  const s=curStep();
+  const tag = m.status==='live' && s && !state.finished ? '<span class="actiontag '+(s.type==='ban'?'':'pick')+'">'+(s.type==='ban'?'BAN':'PICK')+' →</span>' : '';
+  const stamp = m.status==='banned' ? '<div class="stamp ban"><div class="stamp-in">BANNED</div></div>'
+    : m.status==='picked' ? '<div class="stamp pick"><div class="stamp-in">PICKED</div></div>'
+    : m.status==='decider' ? '<div class="stamp dec"><div class="stamp-in">DECIDER</div></div>' : '';
+  const badge = m.order ? '<span class="orderbadge">MAP '+m.order+'</span>' : '';
+  const by = m.by!==null && m.status!=='live' ? '<span class="byline">'+state.teams[m.by]+(m.status==='banned'?' · 밴':m.status==='picked'?' · 픽':'')+'</span>' : '';
+  return '<span class="idx">'+m.ko+'</span>'+tag+stamp+badge+by+
+    '<img src="'+m.img+'" alt="'+m.name+' 대표 사진" loading="lazy" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb=\'\';}else{this.style.display=\'none\'}" '+(m.fb?'data-fb="'+m.fb+'"':'')+' style="background:'+m.grad+'">'+
+    '<div class="shade"></div><div class="meta"><div class="name">'+m.name+'</div><div class="desc">'+m.desc+'</div></div>';
+}
+function renderGrid(){
+  const el=$('#mapgrid'); el.innerHTML='';
+  MAPS.filter(m=>state.pool.has(m.id)).forEach(m=>{
+    const st=state.maps[m.id];
+    const card=document.createElement('div');
+    card.className='mapcard'+(st.status==='banned'?' banned':st.status==='picked'?' picked':st.status==='decider'?' decider':'');
+    card.innerHTML=cardHTML(st);
+    card.setAttribute('role','button'); card.setAttribute('tabindex', st.status==='live'&&!state.finished?'0':'-1');
+    if(st.status==='live' && !state.finished){
+      card.onclick=(e)=>openConfirm(st, card, e);
+      card.onkeydown=(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openConfirm(st, card, e); } };
+      card.addEventListener('mousemove', e=>{
+        const r=card.getBoundingClientRect(), rx=((e.clientY-r.top)/r.height-.5)*-7, ry=((e.clientX-r.left)/r.width-.5)*9;
+        card.style.transform='perspective(700px) rotateX('+rx+'deg) rotateY('+ry+'deg) translateY(-4px)';
+      });
+      card.addEventListener('mouseleave', ()=>{ card.style.transform=''; });
+    }
+    el.appendChild(card);
+  });
+}
+function renderLog(){
+  const el=$('#loglist');
+  if(!state.history.length){ el.innerHTML='<div class="empty">아직 밴/픽 기록이 없습니다. 첫 차례 팀이 맵을 골라주세요.</div>'; return; }
+  el.innerHTML = state.history.map((h,i)=>{
+    const verb = h.type==='ban'?'밴했습니다':h.type==='pick'?'픽했습니다':'디사이더로 남았습니다';
+    const mapLabel = h.type==='decider' ? '<b style="color:var(--gold)">'+h.map.name+'</b>' : '<b>'+h.map.name+'</b>';
+    return '<div class="logitem"><span class="n">'+String(i+1).padStart(2,'0')+'</span><span class="who t'+(h.team+1)+'">'+state.teams[h.team]+'</span><span>'+mapLabel+' 맵을 '+verb+'</span></div>';
+  }).join('');
+}
+
+/* ---------- confirm & apply ---------- */
+function openConfirm(map, card, ev){
+  const s=curStep(); if(!s) return;
+  state.pending={mapId:map.id, card};
+  const img=$('#mImg'); img.src=map.img; img.onerror=()=>{ if(map.fb){ img.src=map.fb; } };
+  img.alt=map.name+' 대표 사진';
+  const act=$('#mAct'); act.textContent=s.type==='ban'?'BAN':'PICK'; act.className='mact '+(s.type==='ban'?'ban':'pick');
+  $('#mName').textContent=map.name+' · '+map.ko;
+  $('#mQ').innerHTML='<b>'+state.teams[s.team]+'</b> 팀이 <b>'+map.name+'</b> 맵을 '+(s.type==='ban'?'<b style="color:#ff8b96">밴(제외)</b>':'<b style="color:#7fe7f3">픽(선택)</b>')+'하시겠습니까?<br>확정하면 되돌리기 전까지 바꿀 수 없습니다. 한 번 더 확인하고 눌러주세요.';
+  const cf=$('#mConfirm'); cf.textContent=(s.type==='ban'?'BAN 확정':'PICK 확정'); cf.className='confirm'+(s.type==='ban'?'':' pick');
+  $('#confirmOv').classList.add('show');
+  sClick();
+}
+$('#mCancel').onclick=()=>{ $('#confirmOv').classList.remove('show'); state.pending=null; };
+$('#confirmOv').addEventListener('click', e=>{ if(e.target.id==='confirmOv'){ $('#confirmOv').classList.remove('show'); state.pending=null; } });
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){ $('#confirmOv').classList.remove('show'); $('#hideOv').classList.remove('show'); state.pending=null; }
+  if(e.key==='Enter' && $('#confirmOv').classList.contains('show')) $('#mConfirm').click();
+});
+$('#mConfirm').onclick=()=>{
+  if(!state.pending) return;
+  const s=curStep(), map=state.maps[state.pending.mapId], card=state.pending.card;
+  $('#confirmOv').classList.remove('show'); state.pending=null;
+  const pickCount = Object.values(state.maps).filter(m=>m.status==='picked').length;
+  if(s.type==='ban'){ map.status='banned'; map.by=s.team; thud(); }
+  else { map.status='picked'; map.by=s.team; map.order=pickCount+1; sPick(); }
+  state.history.push({type:s.type, team:s.team, map:{id:map.id, name:map.name}});
+  // FX at card center
+  if(card){ const r=card.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2;
+    burst(cx, cy, s.type==='ban'?'#ff4655':(s.team===0?'#19d3e6':'#ff4655'), s.type==='ban'?54:70, 1.2);
+    if(s.type==='ban'){ card.classList.add('shaking'); setTimeout(()=>card.classList.remove('shaking'),500); }
+  }
+  flash();
+  const live = remaining();
+  if(live.length===1 && !state.finished){
+    const last=live[0];
+    const totalPicks = Object.values(state.maps).filter(m=>m.status==='picked').length;
+    last.status='decider'; last.order=totalPicks+1; last.by=null;
+    state.history.push({type:'decider', team:(s.team+1)%2, map:{id:last.id, name:last.name}});
+    state.stepIdx = state.steps.length; state.finished=true;
+    renderAll();
+    setTimeout(()=>{ fireworks(); thud(); showResults(); }, 900);
+    return;
+  }
+  state.stepIdx++;
+  if(state.stepIdx>=state.steps.length){
+    // safety: any live map left becomes decider
+    const lv=remaining();
+    if(lv.length===1){ lv[0].status='decider'; lv[0].order=Object.values(state.maps).filter(m=>m.status==='picked').length+1; state.history.push({type:'decider', team:(s.team+1)%2, map:{id:lv[0].id, name:lv[0].name}}); }
+    state.finished=true; renderAll(); setTimeout(showResults, 500); return;
+  }
+  renderAll();
+};
+
+/* ---------- undo ---------- */
+$('#undoBtn').onclick=()=>{
+  if(!state.history.length) return;
+  // decider entry first
+  const last=state.history[state.history.length-1];
+  if(last.type==='decider'){
+    state.history.pop();
+    const m=state.maps[last.map.id]; m.status='live'; m.order=null; m.by=null;
+    state.finished=false; state.stepIdx=state.steps.length-1;
+    $('#results').style.display='none';
+    renderAll(); toast('디사이더 확정을 되돌렸습니다.'); sClick(); return;
+  }
+  const h=state.history.pop();
+  const m=state.maps[h.map.id]; m.status='live'; m.order=null; m.by=null;
+  state.stepIdx--; state.finished=false; $('#results').style.display='none';
+  renderAll(); toast(h.map.name+' '+ (h.type==='ban'?'밴':'픽') +'을 되돌렸습니다.'); sClick();
+};
+
+/* ---------- hide / pass ---------- */
+$('#hideBtn').onclick=()=>{
+  if(state.finished) return;
+  const s=curStep(); if(!s) return;
+  $('#hideTitle').textContent = state.teams[s.team] + ' 차례입니다';
+  $('#hideDesc').innerHTML = '지금은 <b style="color:#fff">'+state.teams[s.team]+'</b> 팀만 화면을 보세요.<br>상대 팀은 뒤를 돌아주세요.';
+  $('#hideOv').classList.add('show'); sClick();
+};
+$('#hideReady').onclick=()=>{ $('#hideOv').classList.remove('show'); flash(); sWhoosh(); };
+
+/* ---------- results ---------- */
+function showResults(){
+  const played = Object.values(state.maps).filter(m=>m.status==='picked'||m.status==='decider').sort((a,b)=>a.order-b.order);
+  $('#resVs').textContent = state.teams[0]+'  VS  '+state.teams[1]+'  ·  '+state.format;
+  const grid=$('#resgrid'); grid.innerHTML='';
+  played.forEach(m=>{
+    const isDec = m.status==='decider';
+    const side = state.sides[m.id];
+    const card=document.createElement('div'); card.className='rescard';
+    card.innerHTML='<img src="'+m.img+'" alt="'+m.name+' 대표 사진" onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb=\'\';}else{this.style.display=\'none\'}" '+(m.fb?'data-fb="'+m.fb+'"':'')+'>'+
+      '<div class="rc-body"><div class="mapno">'+(isDec?'DECIDER · MAP '+m.order:'MAP '+m.order)+'</div><div class="rc-name">'+m.name+'</div>'+
+      '<div class="rc-meta">'+m.ko+' · '+m.desc+'<br>'+(isDec?'마지막까지 남은 맵':'픽한 팀: <b style="color:#fff">'+state.teams[m.by]+'</b>')+'</div>'+
+      '<div class="sidepick"><div class="sp-label">진영 선택 — 공격으로 시작할 팀을 고르세요</div><div class="sp-btns">'+
+      '<button type="button" data-side="0" class="'+(side===0?'sel':'')+'">'+state.teams[0]+'<small>'+(side===0?'⚔ 공격 시작':'공격')+'</small></button>'+
+      '<button type="button" data-side="1" class="'+(side===1?'sel':'')+'">'+state.teams[1]+'<small>'+(side===1?'⚔ 공격 시작':'공격')+'</small></button></div></div></div>';
+    card.querySelectorAll('.sp-btns button').forEach(btn=>{
+      btn.onclick=()=>{
+        const v=parseInt(btn.dataset.side,10);
+        state.sides[m.id] = state.sides[m.id]===v ? undefined : v;
+        showResults(); sClick();
+      };
+    });
+    grid.appendChild(card);
+  });
+  const banned = Object.values(state.maps).filter(m=>m.status==='banned');
+  $('#banlist').innerHTML = '<span>🚫 밴된 맵</span>' + (banned.length? banned.map(m=>'<span class="bchip">'+m.name+'</span>').join('') : '<span>없음</span>');
+  $('#results').style.display='block';
+  $('#results').scrollIntoView({behavior:'smooth', block:'start'});
+}
+$('#copyBtn').onclick=async ()=>{
+  const played = Object.values(state.maps).filter(m=>m.status==='picked'||m.status==='decider').sort((a,b)=>a.order-b.order);
+  const banned = Object.values(state.maps).filter(m=>m.status==='banned');
+  let txt='[VALORANT 밴픽 결과] '+state.teams[0]+' vs '+state.teams[1]+' ('+state.format+')\n';
+  played.forEach(m=>{
+    const side=state.sides[m.id];
+    txt+='MAP '+m.order+': '+m.name+(m.status==='decider'?' (디사이더)':' (픽: '+state.teams[m.by]+')')+(side!==undefined?' · 공격 시작: '+state.teams[side]:'')+'\n';
+  });
+  if(banned.length) txt+='밴: '+banned.map(m=>m.name+'('+state.teams[m.by]+')').join(', ')+'\n';
+  txt+='— MAP VETO 도구에서 생성';
+  try{ await navigator.clipboard.writeText(txt); toast('📋 결과가 복사됐습니다.'); }
+  catch(e){
+    const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); toast('📋 결과가 복사됐습니다.'); }catch(_){ toast('복사에 실패했습니다.'); }
+    ta.remove();
+  }
+  sClick();
+};
+$('#againBtn').onclick=()=>{
+  // same teams/format/pool, fresh veto
+  $('#startBtn').click();
+  window.scrollTo({top:0, behavior:'smooth'});
+};
+$('#newBtn').onclick=()=>{
+  $('#stage').style.display='none'; $('#setup').style.display='block';
+  $('#results').style.display='none';
+  window.scrollTo({top:0, behavior:'smooth'}); sClick();
+};
+$('#topResetBtn').onclick=()=>{
+  $('#stage').style.display='none'; $('#setup').style.display='block';
+  $('#results').style.display='none';
+  window.scrollTo({top:0, behavior:'smooth'}); toast('처음부터 다시 설정하세요.');
+};
+$('#soundBtn').onclick=(e)=>{
+  state.sound=!state.sound;
+  e.currentTarget.textContent = state.sound?'🔊 사운드 ON':'🔇 사운드 OFF';
+  if(state.sound) sClick();
+};
+</script>
+</body>
+</html>
